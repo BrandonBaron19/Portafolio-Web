@@ -92,78 +92,109 @@ document.addEventListener('DOMContentLoaded', () => {
     checkIfInView();
 });
 
-// Validación de formulario de contacto
-const contactForm = document.querySelector('form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
+const contactFormMail = document.getElementById('contact-form');
+
+if (contactFormMail) {
+    contactFormMail.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevenimos cualquier envío por defecto
+
+        // Obtener los valores de los campos
         const nameField = document.getElementById('name');
-        const emailField = document.getElementById('email');
+        const emailField = document.getElementById('email'); // El email del remitente
+        const subjectField = document.getElementById('subject');
         const messageField = document.getElementById('message');
+
+        // --- Validación básica (Opcional pero recomendada) ---
         let valid = true;
-        
-        // Validación básica
+        clearMailErrors(); // Limpiar errores previos
+
         if (nameField.value.trim() === '') {
-            markInvalid(nameField, 'Por favor ingresa tu nombre');
+            markMailInvalid(nameField, 'Ingresa tu nombre');
             valid = false;
         } else {
-            markValid(nameField);
+            markMailValid(nameField);
         }
-        
-        if (emailField.value.trim() === '') {
-            markInvalid(emailField, 'Por favor ingresa tu email');
+         if (emailField.value.trim() === '') {
+            markMailInvalid(emailField, 'Ingresa tu email');
             valid = false;
-        } else if (!isValidEmail(emailField.value)) {
-            markInvalid(emailField, 'Por favor ingresa un email válido');
+        } else if (!isValidEmail(emailField.value)) { // Reutilizamos isValidEmail
+            markMailInvalid(emailField, 'Ingresa un email válido');
             valid = false;
         } else {
-            markValid(emailField);
+            markMailValid(emailField);
         }
-        
+         if (subjectField.value.trim() === '') {
+            markMailInvalid(subjectField, 'Ingresa un asunto');
+            valid = false;
+        } else {
+            markMailValid(subjectField);
+        }
         if (messageField.value.trim() === '') {
-            markInvalid(messageField, 'Por favor ingresa tu mensaje');
+            markMailInvalid(messageField, 'Ingresa tu mensaje');
             valid = false;
         } else {
-            markValid(messageField);
+            markMailValid(messageField);
         }
-        
+        // --- Fin Validación ---
+
         if (valid) {
-            // Aquí se podría enviar el formulario a un servidor
-            alert('¡Gracias por tu mensaje! Te responderé lo antes posible.');
-            contactForm.reset();
+            // Construir el cuerpo del correo incluyendo nombre y email del remitente
+            const mailBody = `Nombre: ${nameField.value.trim()}\nEmail: ${emailField.value.trim()}\n\nMensaje:\n${messageField.value.trim()}`;
+
+            // Construir el enlace mailto:, codificando asunto y cuerpo
+            const mailtoLink = `mailto:brandon.baron1907@gmail.com` +
+                               `?subject=${encodeURIComponent(subjectField.value.trim())}` +
+                               `&body=${encodeURIComponent(mailBody)}`;
+
+            // Abrir el cliente de correo
+            window.location.href = mailtoLink;
+
+            // Opcional: Limpiar formulario después de intentar abrir el correo
+            // contactFormMail.reset();
+            // clearMailErrors();
+
+        } else {
+            // Puedes añadir un mensaje si la validación falla, aunque las marcas rojas ya lo indican
+             console.warn("Formulario no válido para mailto.");
         }
     });
 }
 
-function markInvalid(field, message) {
+// --- Funciones de Ayuda para Validación (Necesitamos renombrarlas o asegurarnos de que no choquen) ---
+// (Puedes mantener las funciones markInvalid/markValid/clearErrors/isValidEmail que ya tenías,
+// solo asegúrate de llamarlas correctamente como hice arriba: markMailInvalid, etc. o usa los nombres originales)
+
+// Ejemplo renombrando (si quieres mantener las otras):
+function markMailInvalid(field, message) {
     field.classList.add('invalid');
-    
-    // Buscar o crear mensaje de error
     let errorMessage = field.parentNode.querySelector('.error-message');
     if (!errorMessage) {
         errorMessage = document.createElement('div');
         errorMessage.className = 'error-message';
-        field.parentNode.appendChild(errorMessage);
+        field.parentNode.insertBefore(errorMessage, field.nextSibling);
     }
-    
     errorMessage.textContent = message;
 }
 
-function markValid(field) {
+function markMailValid(field) {
     field.classList.remove('invalid');
-    
-    // Eliminar mensaje de error si existe
     const errorMessage = field.parentNode.querySelector('.error-message');
     if (errorMessage) {
         errorMessage.remove();
     }
 }
 
+function clearMailErrors() {
+    contactFormMail.querySelectorAll('.invalid').forEach(field => markMailValid(field));
+     contactFormMail.querySelectorAll('.error-message').forEach(msg => msg.remove());
+}
+
+// Reutilizamos la función isValidEmail que ya tenías:
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
+
 
 // Cargar fuentes personalizadas 
 (function loadFonts() {
