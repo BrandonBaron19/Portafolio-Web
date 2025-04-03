@@ -142,7 +142,7 @@ if (contactFormMail) {
             const mailBody = `Nombre: ${nameField.value.trim()}\nEmail: ${emailField.value.trim()}\n\nMensaje:\n${messageField.value.trim()}`;
 
             // Construir el enlace mailto:, codificando asunto y cuerpo
-            const mailtoLink = `mailto:brandon.baron1907@gmail.com` +
+            const mailtoLink = `mailto:brandonbaron19@gmail.com` +
                                `?subject=${encodeURIComponent(subjectField.value.trim())}` +
                                `&body=${encodeURIComponent(mailBody)}`;
 
