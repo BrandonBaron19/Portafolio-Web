@@ -117,14 +117,15 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
 }
 
-/* Hero Section */
+/* Hero Section - ACTUALIZADO */
 .hero {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     background-color: var(--primary);
     position: relative;
     overflow: hidden;
+    padding: 100px 0;
 }
 
 .hero::before {
@@ -150,8 +151,9 @@ h1, h2, h3, h4, h5, h6 {
 .hero-subtitle {
     font-family: var(--font-heading);
     color: var(--secondary);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 1rem;
+    letter-spacing: 0.5px;
 }
 
 .hero-title {
@@ -166,9 +168,28 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 600px;
 }
 
+/* Hero highlights - NUEVO */
+.hero-highlights {
+    list-style: none;
+    margin: 25px 0;
+}
+
+.hero-highlights li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hero-highlights i {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
 .hero-cta {
     display: flex;
-    gap: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -203,6 +224,74 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--secondary);
     color: var(--light);
     transform: translateY(-2px);
+}
+
+/* Botón con estilo de contorno - NUEVO */
+.btn-outline {
+    background-color: transparent;
+    color: var(--light);
+    border: 2px solid var(--light);
+    padding: 12px 30px;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background-color: var(--light);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* Etiqueta de Disponibilidad - NUEVO */
+.availability-badge {
+    display: inline-block;
+    background-color: var(--accent);
+    color: var(--dark);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+/* Barra de tecnologías - NUEVO */
+.tech-banner {
+    background-color: var(--code-bg);
+    padding: 15px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tech-slider {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.tech-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--light);
+}
+
+.tech-item i {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+/* Highlight para palabras clave - NUEVO */
+.keyword-highlight {
+    color: var(--secondary);
+    font-weight: bold;
 }
 
 /* About Section */
@@ -330,7 +419,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 4px;
 }
 
-/* Experience Section */
+/* Experience Section - ACTUALIZADO */
 .experience-container {
     position: relative;
     max-width: 800px;
@@ -365,6 +454,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--primary);
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--accent);
 }
 
 .timeline-item:nth-child(odd) .timeline-content {
@@ -435,7 +525,7 @@ h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
 }
 
-/* Projects Section */
+/* Projects Section - ACTUALIZADO */
 .projects-container {
     margin-top: 60px;
 }
@@ -479,6 +569,27 @@ h1, h2, h3, h4, h5, h6 {
 
 .project-card:hover {
     transform: translateY(-10px);
+}
+
+/* Estilos para destacar proyectos importantes - NUEVO */
+.project-card.featured {
+    transform: scale(1.03);
+    border: 2px solid var(--accent);
+    position: relative;
+}
+
+.project-card.featured::before {
+    content: 'Destacado';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--accent);
+    color: var(--dark);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 10;
 }
 
 .project-image {
@@ -769,6 +880,15 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+/* Adaptaciones para escaneo rápido - NUEVO */
+.scan-friendly {
+    background-color: rgba(67, 181, 129, 0.05);
+    padding: 25px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid var(--accent);
+}
+
 /* Footer */
 .footer {
     background-color: var(--primary);
@@ -803,6 +923,13 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 30px;
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.6);
+}
+
+/* Mejoras de accesibilidad - NUEVO */
+@media (prefers-reduced-motion: reduce) {
+    .hero-highlights li, .project-card, .skill-category {
+        transition: none;
+    }
 }
 
 /* Responsive Design */
@@ -868,6 +995,19 @@ h1, h2, h3, h4, h5, h6 {
     
     .projects-grid {
         grid-template-columns: 1fr;
+    }
+
+    .hero-highlights {
+        margin: 15px 0;
+    }
+    
+    .hero-highlights li {
+        margin-bottom: 8px;
+    }
+    
+    .tech-slider {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 

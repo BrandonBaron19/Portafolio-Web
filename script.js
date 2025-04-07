@@ -62,7 +62,7 @@ if (terminalText) {
 
 // Animación al scroll
 document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll('.skill-category, .project-card, .timeline-item, .education-item');
+    const animatedElements = document.querySelectorAll('.skill-category, .project-card, .timeline-item, .education-item, .hero-highlights li, .tech-item');
     
     function checkIfInView() {
         const windowHeight = window.innerHeight;
@@ -93,24 +93,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Validación de formulario de contacto
-const contactForm = document.querySelector('form');
+const contactForm = document.getElementById('contact-form');
+const formStatus = document.getElementById('form-status');
+
 if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
+        e.preventDefault(); // Prevenimos el envío normal para usar AJAX
+
+        const formData = new FormData(contactForm);
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        let valid = true;
+
+        // --- Validación (similar a la anterior) ---
         const nameField = document.getElementById('name');
         const emailField = document.getElementById('email');
         const messageField = document.getElementById('message');
-        let valid = true;
-        
-        // Validación básica
+
+        // Limpiar errores previos
+        clearErrors();
+        formStatus.textContent = ''; // Limpiar mensaje de estado previo
+        formStatus.style.color = 'inherit'; // Resetear color
+
         if (nameField.value.trim() === '') {
             markInvalid(nameField, 'Por favor ingresa tu nombre');
             valid = false;
         } else {
             markValid(nameField);
         }
-        
+
         if (emailField.value.trim() === '') {
             markInvalid(emailField, 'Por favor ingresa tu email');
             valid = false;
@@ -120,43 +130,101 @@ if (contactForm) {
         } else {
             markValid(emailField);
         }
-        
+
         if (messageField.value.trim() === '') {
             markInvalid(messageField, 'Por favor ingresa tu mensaje');
             valid = false;
         } else {
             markValid(messageField);
         }
-        
+        // --- Fin Validación ---
+
+
         if (valid) {
-            // Aquí se podría enviar el formulario a un servidor
-            alert('¡Gracias por tu mensaje! Te responderé lo antes posible.');
-            contactForm.reset();
+            // Si el formulario es válido, enviar a Formspree
+            submitButton.disabled = true; // Deshabilitar botón mientras envía
+            submitButton.textContent = 'Enviando...'; // Feedback visual
+            formStatus.textContent = ''; // Limpiar mensajes previos
+
+            fetch(contactForm.action, {
+                method: contactForm.method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json' // Para que Formspree responda con JSON
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Éxito
+                    formStatus.textContent = "¡Gracias por tu mensaje! Te responderé pronto.";
+                    formStatus.style.color = 'var(--accent)'; // Verde éxito
+                    contactForm.reset(); // Limpiar el formulario
+                    clearErrors(); // Limpiar posibles bordes rojos residuales
+                } else {
+                    // Error de Formspree o red
+                    response.json().then(data => {
+                        // Intentar mostrar error específico de Formspree si existe
+                        if (Object.hasOwn(data, 'errors')) {
+                            formStatus.textContent = data["errors"].map(error => error["message"]).join(", ");
+                        } else {
+                            formStatus.textContent = "Oops! Hubo un problema al enviar el mensaje. Intenta de nuevo.";
+                        }
+                        formStatus.style.color = 'var(--danger)'; // Rojo error
+                    }).catch(error => {
+                         // Error genérico si falla el .json()
+                        formStatus.textContent = "Oops! Hubo un problema al enviar el mensaje. Intenta de nuevo.";
+                        formStatus.style.color = 'var(--danger)'; // Rojo error
+                    });
+                }
+            })
+            .catch(error => {
+                // Error de red (fetch falló)
+                formStatus.textContent = "Error de red. Por favor, revisa tu conexión e intenta de nuevo.";
+                formStatus.style.color = 'var(--danger)'; // Rojo error
+            })
+            .finally(() => {
+                // Volver a habilitar el botón y restaurar texto
+                submitButton.disabled = false;
+                submitButton.textContent = 'Enviar Mensaje';
+            });
+        } else {
+            // Si el formulario no es válido (la validación JS falló)
+             formStatus.textContent = "Por favor, corrige los campos marcados.";
+             formStatus.style.color = 'var(--warning)'; // Amarillo advertencia
         }
     });
 }
 
+// --- Funciones de Ayuda para Validación (Modificadas ligeramente) ---
 function markInvalid(field, message) {
     field.classList.add('invalid');
-    
-    // Buscar o crear mensaje de error
+    field.setAttribute('aria-invalid', 'true'); // Para accesibilidad
+
     let errorMessage = field.parentNode.querySelector('.error-message');
     if (!errorMessage) {
         errorMessage = document.createElement('div');
         errorMessage.className = 'error-message';
-        field.parentNode.appendChild(errorMessage);
+        // Insertar después del input/textarea, no al final del form-group
+        field.parentNode.insertBefore(errorMessage, field.nextSibling);
     }
-    
     errorMessage.textContent = message;
 }
 
 function markValid(field) {
     field.classList.remove('invalid');
-    
-    // Eliminar mensaje de error si existe
+     field.removeAttribute('aria-invalid'); // Para accesibilidad
+
     const errorMessage = field.parentNode.querySelector('.error-message');
     if (errorMessage) {
         errorMessage.remove();
+    }
+}
+
+function clearErrors() {
+    // Quitar todos los mensajes de error y clases 'invalid'
+    const invalidFields = document.querySelectorAll('.invalid');
+    if (invalidFields) {
+        invalidFields.forEach(field => markValid(field));
     }
 }
 
@@ -164,6 +232,8 @@ function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
+
+// --- FIN: Código de Validación y Envío de Formulario ---
 
 // Cargar fuentes personalizadas 
 (function loadFonts() {
@@ -184,13 +254,14 @@ function isValidEmail(email) {
 (function addAnimationStyles() {
     const style = document.createElement('style');
     style.textContent = `
-        .skill-category, .project-card, .timeline-item, .education-item {
+        .skill-category, .project-card, .timeline-item, .education-item, .hero-highlights li, .tech-item {
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
         
-        .skill-category.animate, .project-card.animate, .timeline-item.animate, .education-item.animate {
+        .skill-category.animate, .project-card.animate, .timeline-item.animate, .education-item.animate, 
+        .hero-highlights li.animate, .tech-item.animate {
             opacity: 1;
             transform: translateY(0);
         }
